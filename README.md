@@ -17,8 +17,8 @@ OpenAI <br />
 ## Front-end
 
 Vite <br />
-React <br/>
-Radix <br/>
+React + TSX <br/>
+RadixUI <br/>
 TailwindCSS <br/>
 
 ---
