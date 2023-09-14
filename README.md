@@ -9,7 +9,7 @@ Aplicação que possibilita realizar upload de videos e por meio de IA, criar au
 ## Back-end
 
 Node.js <br/>
-TypeScript + TSX <br/>
+TypeScript <br/>
 Fastify (Framework) <br/>
 Prisma + SQLite <br/>
 OpenAI <br />
