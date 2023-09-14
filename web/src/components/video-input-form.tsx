@@ -1,3 +1,4 @@
+// Importações de bibliotecas e componentes
 import { api } from "@/lib/axios";
 import { getFFMpeg } from "@/lib/ffmpeg";
 import { fetchFile } from "@ffmpeg/util";
@@ -8,8 +9,10 @@ import { Label } from "./ui/label";
 import { Separator } from "./ui/separator";
 import { Textarea } from "./ui/textarea";
 
+// Definição dos possíveis estados da aplicação
 type Status = "waiting" | "converting" | "uploading" | "generating" | "success";
 
+// Mensagens correspondentes aos estados da aplicação
 const statusMessages = {
   converting: "Convertendo...",
   generating: "Transcrevendo...",
@@ -17,18 +20,19 @@ const statusMessages = {
   success: "Sucesso",
 };
 
+// Propriedades esperadas para o componente VideoInputForm
 type VideoInputFormProps = {
   onVideoUploaded: (id: string) => void;
 };
 
+// Definição do componente VideoInputForm
 export const VideoInputForm = (props: VideoInputFormProps) => {
-  /*
-  Eu uso o useState quando eu quero monitorar a troca de valor dela e com base nela eu quero trocar algo na minha interface, Sempre que eu vou ter uma alteração na interface baseada na mudança de uma variável aquilo precisa ser um State
-  */
+  // Estados para controlar o arquivo de vídeo, status e referência para o campo de prompt
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [status, setStatus] = useState<Status>("waiting");
   const promptInputRef = useRef<HTMLTextAreaElement>(null);
 
+  // Função para lidar com a seleção de um arquivo de vídeo
   const handleFileSelected = (event: ChangeEvent<HTMLInputElement>) => {
     const { files } = event.currentTarget;
     if (!files) return;
@@ -37,8 +41,9 @@ export const VideoInputForm = (props: VideoInputFormProps) => {
     setVideoFile(selectedFile);
   };
 
+  // Função para converter vídeo em áudio usando FFMpeg
   const convertVideoToAudio = async (video: File) => {
-    console.log("Convert started.");
+    console.log("Conversão iniciada.");
 
     const ffmpeg = await getFFMpeg();
 
@@ -49,7 +54,9 @@ export const VideoInputForm = (props: VideoInputFormProps) => {
     // });
 
     ffmpeg.on("progress", (progress) => {
-      console.log(`Convert progress: ${Math.round(progress.progress * 100)}`);
+      console.log(
+        `Progresso da conversão: ${Math.round(progress.progress * 100)}`
+      );
     });
 
     await ffmpeg.exec([
@@ -71,10 +78,11 @@ export const VideoInputForm = (props: VideoInputFormProps) => {
       type: "audio/mpeg",
     });
 
-    console.log("Convert finished.");
+    console.log("Conversão concluída.");
     return audioFile;
   };
 
+  // Função para lidar com o envio do vídeo
   const handleUploadVideo = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -83,7 +91,7 @@ export const VideoInputForm = (props: VideoInputFormProps) => {
     if (!videoFile) return;
     setStatus("converting");
 
-    // converter o vídeo em audio
+    // Converter o vídeo em áudio
     const audioFile = await convertVideoToAudio(videoFile);
 
     const data = new FormData();
@@ -101,9 +109,10 @@ export const VideoInputForm = (props: VideoInputFormProps) => {
     });
     setStatus("success");
     props.onVideoUploaded(videoId);
-    console.log("finalizou");
+    console.log("Concluído");
   };
 
+  // URL de visualização do vídeo
   const previewURL = useMemo(() => {
     if (!videoFile) return null;
 
@@ -112,6 +121,7 @@ export const VideoInputForm = (props: VideoInputFormProps) => {
 
   return (
     <form className="space-y-6" onSubmit={handleUploadVideo}>
+      {/* Componente para selecionar um arquivo de vídeo */}
       <label
         htmlFor="video"
         className="relative border flex rounded-md aspect-video cursor-pointer border-dashed text-sm flex-col gap-2 items-center justify-center text-muted-foreground hover:bg-primary/10"
@@ -130,6 +140,7 @@ export const VideoInputForm = (props: VideoInputFormProps) => {
         )}
       </label>
 
+      {/* Campo oculto para selecionar o arquivo de vídeo */}
       <input
         type="file"
         id="video"
@@ -138,9 +149,11 @@ export const VideoInputForm = (props: VideoInputFormProps) => {
         onChange={handleFileSelected}
       />
 
+      {/* Componente Separator para separar elementos */}
       <Separator />
 
       <div className="space-y-2">
+        {/* Rótulo e campo de entrada de prompt de transcrição */}
         <Label htmlFor="transcription_prompt">Prompt de transcrição</Label>
         <Textarea
           ref={promptInputRef}
@@ -151,6 +164,7 @@ export const VideoInputForm = (props: VideoInputFormProps) => {
         />
       </div>
 
+      {/* Botão para enviar o vídeo */}
       <Button
         data-success={status === "success"}
         disabled={status !== "waiting"}
